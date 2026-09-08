@@ -1,6 +1,8 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Activity, DayUniformOverride, GroupInfo, UniformType } from '../models/calendar.model';
 import { SAN_MIGUEL_CYCLES_1B } from '../data/school-cycles.data';
+import { db } from '../config/firebase.config';
+import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -63,12 +65,9 @@ export class CalendarService {
     return this.activities().filter(a => a.grupoId.toLowerCase() === group.id.toLowerCase() && a.fecha === dateStr);
   });
 
-  private readonly CLOUD_API_URL = 'https://api.restful-api.dev/objects/ff808181a067127101a0818d71574b42';
-
   constructor() {
     this.loadFromStorage();
-    this.syncWithCloud();
-    this.initAutoSync();
+    this.initFirebaseRealtimeSync();
   }
 
   setActiveGroup(groupId: string): void {
@@ -124,35 +123,63 @@ export class CalendarService {
     return this.activities().filter(a => a.grupoId.toLowerCase() === groupId.toLowerCase() && a.fecha.startsWith(prefix));
   }
 
-  addActivity(activity: Omit<Activity, 'id'>): void {
+  async addActivity(activity: Omit<Activity, 'id'>): Promise<void> {
+    const actId = 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
     const newActivity: Activity = {
       ...activity,
-      id: 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)
+      id: actId
     };
-    this.activities.update(prev => [...prev, newActivity]);
+
+    // Actualización inmediata en señal local y localStorage
+    this.activities.update(prev => [...prev.filter(a => a.id !== actId), newActivity]);
     this.saveActivitiesToStorage();
-    this.pushToCloud();
+
+    // Sincronización en tiempo real en la nube con Firebase Firestore
+    try {
+      await setDoc(doc(db, 'activities', actId), newActivity);
+    } catch (err) {
+      console.warn('Error guardando actividad en Firebase Firestore:', err);
+    }
   }
 
-  deleteActivity(id: string): void {
+  async deleteActivity(id: string): Promise<void> {
     this.activities.update(prev => prev.filter(a => a.id !== id));
     this.saveActivitiesToStorage();
-    this.pushToCloud();
+
+    try {
+      await deleteDoc(doc(db, 'activities', id));
+    } catch (err) {
+      console.warn('Error eliminando actividad de Firebase Firestore:', err);
+    }
   }
 
-  setUniformOverride(groupId: string, fecha: string, tipo: UniformType, motivo?: string): void {
+  async setUniformOverride(groupId: string, fecha: string, tipo: UniformType, motivo?: string): Promise<void> {
+    const overrideId = `${groupId.toLowerCase()}_${fecha}`;
+    const overrideObj: DayUniformOverride = { grupoId: groupId.toLowerCase(), fecha, tipo, motivo };
+
     this.uniformOverrides.update(prev => {
       const filtered = prev.filter(o => !(o.grupoId.toLowerCase() === groupId.toLowerCase() && o.fecha === fecha));
-      return [...filtered, { grupoId: groupId.toLowerCase(), fecha, tipo, motivo }];
+      return [...filtered, overrideObj];
     });
     this.saveOverridesToStorage();
-    this.pushToCloud();
+
+    try {
+      await setDoc(doc(db, 'overrides', overrideId), overrideObj);
+    } catch (err) {
+      console.warn('Error guardando override en Firebase Firestore:', err);
+    }
   }
 
-  removeUniformOverride(groupId: string, fecha: string): void {
+  async removeUniformOverride(groupId: string, fecha: string): Promise<void> {
+    const overrideId = `${groupId.toLowerCase()}_${fecha}`;
     this.uniformOverrides.update(prev => prev.filter(o => !(o.grupoId.toLowerCase() === groupId.toLowerCase() && o.fecha === fecha)));
     this.saveOverridesToStorage();
-    this.pushToCloud();
+
+    try {
+      await deleteDoc(doc(db, 'overrides', overrideId));
+    } catch (err) {
+      console.warn('Error eliminando override de Firebase Firestore:', err);
+    }
   }
 
   formatDateToString(d: Date): string {
@@ -162,51 +189,45 @@ export class CalendarService {
     return `${year}-${month}-${day}`;
   }
 
-  private initAutoSync(): void {
-    if (typeof window !== 'undefined') {
-      // Sincronizar automáticamente cada 10 segundos
-      setInterval(() => this.syncWithCloud(), 10000);
-      // Sincronizar de inmediato cuando la pestaña vuelve a enfocarse
-      window.addEventListener('focus', () => this.syncWithCloud());
-    }
-  }
+  private initFirebaseRealtimeSync(): void {
+    if (typeof window === 'undefined') return;
 
-  private async syncWithCloud(): Promise<void> {
     try {
-      const res = await fetch(this.CLOUD_API_URL);
-      if (res.ok) {
-        const result = await res.json();
-        if (result && result.data) {
-          if (Array.isArray(result.data.activities)) {
-            this.activities.set(result.data.activities);
-            localStorage.setItem(this.STORAGE_KEY_ACTIVITIES, JSON.stringify(result.data.activities));
+      // 1. Escuchar cambios en tiempo real en la colección de Firestore 'activities'
+      onSnapshot(collection(db, 'activities'), (snapshot) => {
+        if (!snapshot.empty) {
+          const cloudActivities: Activity[] = [];
+          snapshot.forEach(docSnap => {
+            cloudActivities.push(docSnap.data() as Activity);
+          });
+          if (cloudActivities.length > 0) {
+            this.activities.set(cloudActivities);
+            this.saveActivitiesToStorage();
           }
-          if (Array.isArray(result.data.overrides)) {
-            this.uniformOverrides.set(result.data.overrides);
-            localStorage.setItem(this.STORAGE_KEY_OVERRIDES, JSON.stringify(result.data.overrides));
-          }
+        } else if (this.activities().length > 0) {
+          // Si la base de datos está vacía en la nube, subir las actividades iniciales
+          this.activities().forEach(act => {
+            setDoc(doc(db, 'activities', act.id), act).catch(() => {});
+          });
         }
-      }
-    } catch (err) {
-      console.warn('Sincronización en la nube no disponible temporalmente:', err);
-    }
-  }
-
-  private async pushToCloud(): Promise<void> {
-    try {
-      await fetch(this.CLOUD_API_URL, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'calendario_1b_activities',
-          data: {
-            activities: this.activities(),
-            overrides: this.uniformOverrides()
-          }
-        })
+      }, (err) => {
+        console.warn('Sincronización en vivo Firestore (actividades):', err);
       });
+
+      // 2. Escuchar cambios en tiempo real en la colección de Firestore 'overrides'
+      onSnapshot(collection(db, 'overrides'), (snapshot) => {
+        const cloudOverrides: DayUniformOverride[] = [];
+        snapshot.forEach(docSnap => {
+          cloudOverrides.push(docSnap.data() as DayUniformOverride);
+        });
+        this.uniformOverrides.set(cloudOverrides);
+        this.saveOverridesToStorage();
+      }, (err) => {
+        console.warn('Sincronización en vivo Firestore (overrides):', err);
+      });
+
     } catch (err) {
-      console.warn('Error enviando datos a la nube:', err);
+      console.warn('Error inicializando Firebase Firestore:', err);
     }
   }
 
