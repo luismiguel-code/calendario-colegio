@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
 import { CalendarService } from '../../services/calendar.service';
+import { SAN_MIGUEL_CYCLES_1B } from '../../data/school-cycles.data';
 
 interface ScheduleBlock {
   time: string;
@@ -166,13 +167,25 @@ interface ScheduleDay {
                 <div class="teacher-item">
                   <div class="teacher-role">Director de grupo</div>
                   <div class="teacher-name">Mr Daniel Acevedo Moncada</div>
-                  <div class="teacher-subjects">Matemáticas, Ciencias, Inglés</div>
+                  <div class="teacher-subjects">Lenguaje, Ciencias Sociales, Progrentis</div>
                 </div>
 
                 <div class="teacher-item">
                   <div class="teacher-role">Codirectora de grupo</div>
                   <div class="teacher-name">Ms Diana Milena Rojas</div>
-                  <div class="teacher-subjects">Reading Program</div>
+                  <div class="teacher-subjects">Reading Program, English+</div>
+                </div>
+
+                <div class="teacher-item">
+                  <div class="teacher-role">Docente Matemáticas & Science</div>
+                  <div class="teacher-name">Ms Daniela Mesa</div>
+                  <div class="teacher-subjects">Mathematics, Science</div>
+                </div>
+
+                <div class="teacher-item">
+                  <div class="teacher-role">Docente de Inglés</div>
+                  <div class="teacher-name">Ms Laura Valencia</div>
+                  <div class="teacher-subjects">English, English+</div>
                 </div>
 
                 <div class="teacher-item">
@@ -188,9 +201,29 @@ interface ScheduleDay {
                 <div class="icon-bubble bubble-horario">
                   <mat-icon>schedule</mat-icon>
                 </div>
-                <div>
-                  <h4>HORARIO OFICIAL DE CLASES - GRUPO 1B</h4>
-                  <p class="timetable-sub">Selecciona un día del ciclo para consultar sus materias y profesores</p>
+                <div class="timetable-title-group">
+                  <div class="timetable-title-row">
+                    <h4>HORARIO OFICIAL DE CLASES - GRUPO 1B</h4>
+                    @if (currentCycleDayNum(); as currentDay) {
+                      <span class="today-schedule-badge">
+                        <mat-icon class="badge-icon">event_available</mat-icon>
+                        Hoy: Día {{ currentDay }}@if (todayCycleInfo(); as info){ (Ciclo {{ info.ciclo }})}
+                      </span>
+                    }
+                  </div>
+                  <p class="timetable-sub">
+                    @if (todayCycleInfo(); as info) {
+                      @if (info.eventoEspecial) {
+                        <span>📌 Evento de hoy: <strong>{{ info.eventoEspecial }}</strong></span>
+                      } @else if (currentCycleDayNum()) {
+                        <span>Horario precargado automáticamente para la fecha seleccionada (Día {{ currentCycleDayNum() }}).</span>
+                      } @else {
+                        <span>Selecciona un día del ciclo para consultar sus materias y profesores</span>
+                      }
+                    } @else {
+                      <span>Selecciona un día del ciclo para consultar sus materias y profesores</span>
+                    }
+                  </p>
                 </div>
               </div>
 
@@ -200,12 +233,15 @@ interface ScheduleDay {
                   <button 
                     mat-stroked-button 
                     class="day-toggle-btn"
-                    [class.active-day-btn]="selectedScheduleDay() === day.dayNum"
+                    [class.active-day-btn]="effectiveSelectedDay() === day.dayNum"
+                    [class.today-day-btn]="currentCycleDayNum() === day.dayNum"
                     [class.ef-day-btn]="day.hasEf"
-                    (click)="selectedScheduleDay.set(day.dayNum)"
+                    (click)="selectScheduleDay(day.dayNum)"
                   >
                     <span>Día {{ day.dayNum }}</span>
-                    @if (day.hasEf) {
+                    @if (currentCycleDayNum() === day.dayNum) {
+                      <span class="hoy-chip">⭐ HOY</span>
+                    } @else if (day.hasEf) {
                       <span class="ef-badge">🔴 Ed. Física</span>
                     }
                   </button>
@@ -213,17 +249,35 @@ interface ScheduleDay {
                 <button 
                   mat-stroked-button 
                   class="day-toggle-btn"
-                  [class.active-day-btn]="selectedScheduleDay() === 0"
-                  (click)="selectedScheduleDay.set(0)"
+                  [class.active-day-btn]="effectiveSelectedDay() === 0"
+                  (click)="selectScheduleDay(0)"
                 >
                   <span>Ver Todos los Días</span>
                 </button>
+
+                @if (userSelectedDay() !== null && currentCycleDayNum()) {
+                  <button 
+                    mat-flat-button
+                    color="primary"
+                    class="day-toggle-btn reset-today-btn"
+                    (click)="resetToToday()"
+                  >
+                    <mat-icon>today</mat-icon>
+                    <span>Volver a Hoy (Día {{ currentCycleDayNum() }})</span>
+                  </button>
+                }
               </div>
 
               <!-- Contenido de Materias por Día -->
               <div class="days-schedule-container">
                 @for (day of displayedScheduleDays(); track day.dayNum) {
-                  <div class="day-schedule-card" [class.highlight-ef-card]="day.hasEf">
+                  <div class="day-schedule-card" [class.highlight-ef-card]="day.hasEf" [class.highlight-today-card]="day.dayNum === currentCycleDayNum()">
+                    @if (day.dayNum === currentCycleDayNum()) {
+                      <div class="today-banner">
+                        <mat-icon>stars</mat-icon>
+                        <span>HORARIO PRECARGADO DE HOY — Día {{ day.dayNum }}@if (todayCycleInfo(); as info){ (Ciclo {{ info.ciclo }})}</span>
+                      </div>
+                    }
                     <div class="day-card-header">
                       <span class="day-title-pill">
                         <mat-icon>calendar_view_day</mat-icon>
@@ -566,15 +620,42 @@ interface ScheduleDay {
     }
     .timetable-header {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
       margin-bottom: 14px;
+    }
+    .timetable-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .timetable-title-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     .timetable-header h4 {
       font-size: 0.95rem;
       font-weight: 800;
       color: #0f172a;
-      margin: 0 0 2px 0;
+      margin: 0;
+    }
+    .today-schedule-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge-icon {
+      font-size: 14px !important;
+      width: 14px !important;
+      height: 14px !important;
     }
     .timetable-sub {
       font-size: 0.78rem;
@@ -599,6 +680,48 @@ interface ScheduleDay {
       background-color: #4f46e5 !important;
       color: #ffffff !important;
       border-color: #4f46e5 !important;
+    }
+    .today-day-btn {
+      border: 2px solid #4f46e5 !important;
+    }
+    .hoy-chip {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #4f46e5;
+      background: #e0e7ff;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 4px;
+    }
+    .active-day-btn .hoy-chip {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.25);
+    }
+    .reset-today-btn {
+      font-size: 0.74rem !important;
+      border-radius: 12px !important;
+      height: 36px !important;
+    }
+    .today-banner {
+      background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .today-banner mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+    .highlight-today-card {
+      border: 2px solid #6366f1 !important;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.12) !important;
     }
     .ef-badge {
       font-size: 0.65rem;
@@ -776,7 +899,30 @@ interface ScheduleDay {
 export class ImportantNotesComponent {
   private calendarService = inject(CalendarService);
 
-  selectedScheduleDay = signal<number>(1);
+  // Permite saber qué día del ciclo corresponde a la fecha seleccionada en el calendario
+  todayCycleInfo = computed(() => {
+    const dateStr = this.calendarService.selectedDate();
+    return SAN_MIGUEL_CYCLES_1B[dateStr] || null;
+  });
+
+  // Número de día del ciclo (1..6) para la fecha actual/seleccionada
+  currentCycleDayNum = computed(() => {
+    const info = this.todayCycleInfo();
+    return (info && info.diaCiclo > 0) ? info.diaCiclo : null;
+  });
+
+  // Si el usuario da clic manualmente a un botón de día (null = modo automático cargado con la fecha seleccionada)
+  userSelectedDay = signal<number | null>(null);
+
+  // Día que efectivamente se está mostrando
+  effectiveSelectedDay = computed(() => {
+    const userChoice = this.userSelectedDay();
+    if (userChoice !== null) {
+      return userChoice;
+    }
+    const currentDay = this.currentCycleDayNum();
+    return currentDay ? currentDay : 1;
+  });
 
   isGroup1B = computed(() => this.calendarService.activeGroupId().toLowerCase() === '1b');
 
@@ -784,32 +930,31 @@ export class ImportantNotesComponent {
     {
       dayNum: 1,
       title: 'Día 1',
-      hasEf: true,
-      efTime: '14:00 - 14:45',
+      hasEf: false,
       blocks: [
-        { time: '08:15 - 08:55', subject: 'English+', teacher: 'Mr Daniel Acevedo Moncada / Ms Diana Milena Rojas' },
-        { time: '08:55 - 09:35', subject: 'Lenguaje', teacher: 'Mr Daniel Acevedo Moncada' },
+        { time: '08:15 - 08:55', subject: 'English+', teacher: 'Laura Valencia / Diana Milena Rojas' },
+        { time: '08:55 - 09:35', subject: 'Lenguaje', teacher: 'Daniel Acevedo' },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
-        { time: '10:35 - 11:30', subject: 'Ajedrez', teacher: 'Levy de la Pava' },
-        { time: '11:30 - 12:25', subject: 'Mathematics', teacher: 'Mr Daniel Acevedo Moncada' },
+        { time: '10:35 - 11:30', subject: 'Ajedrez', teacher: 'Levy de la pava' },
+        { time: '11:30 - 12:25', subject: 'Mathematics', teacher: 'Daniela Mesa' },
         { time: '12:25 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 14:00', subject: 'Progrentis Elemental', teacher: 'Mr Daniel Acevedo Moncada' },
-        { time: '14:00 - 14:45', subject: 'Educación Física 🔴', teacher: 'Hugo Hernández (SA1)', isEf: true }
+        { time: '13:10 - 14:45', subject: 'Progrentis Elementar', teacher: 'Daniel Acevedo' }
       ]
     },
     {
       dayNum: 2,
       title: 'Día 2',
-      hasEf: false,
+      hasEf: true,
+      efTime: '14:00 - 14:45',
       blocks: [
         { time: '08:15 - 08:55', subject: 'Danzas', teacher: 'Eliana García (Performing Arts)' },
-        { time: '08:55 - 09:35', subject: 'Teatro', teacher: 'Fanny Rosas (Performing Arts)' },
+        { time: '08:55 - 09:35', subject: 'Teatro', teacher: 'Henry Rosas (Performing Arts)' },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
-        { time: '10:35 - 11:30', subject: 'Lenguaje', teacher: 'Mr Daniel Acevedo Moncada' },
-        { time: '11:30 - 12:25', subject: 'English', teacher: 'Mr Daniel Acevedo Moncada' },
+        { time: '10:35 - 11:30', subject: 'Lenguaje', teacher: 'Daniel Acevedo' },
+        { time: '11:30 - 12:25', subject: 'English', teacher: 'Laura Valencia' },
         { time: '12:25 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 14:00', subject: 'Science', teacher: 'Mr Daniel Acevedo Moncada' },
-        { time: '14:00 - 14:45', subject: 'Lenguaje', teacher: 'Mr Daniel Acevedo Moncada' }
+        { time: '13:10 - 14:00', subject: 'Science', teacher: 'Daniela Mesa' },
+        { time: '14:00 - 14:45', subject: 'Educación Física 🔴', teacher: 'Hugo Hernandez (SA1)', isEf: true }
       ]
     },
     {
@@ -817,28 +962,28 @@ export class ImportantNotesComponent {
       title: 'Día 3',
       hasEf: false,
       blocks: [
-        { time: '08:15 - 08:55', subject: 'Science', teacher: 'Mr Daniel Acevedo Moncada' },
-        { time: '08:55 - 09:35', subject: 'Ciencias Sociales', teacher: 'Mr Daniel Acevedo Moncada' },
+        { time: '08:15 - 08:55', subject: 'Science', teacher: 'Daniela Mesa' },
+        { time: '08:55 - 09:35', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo' },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
         { time: '10:35 - 12:25', subject: 'Arts', teacher: 'Valentina Salazar (Art Studio)' },
         { time: '12:25 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 14:00', subject: 'Mathematics', teacher: 'Mr Daniel Acevedo Moncada' },
-        { time: '14:00 - 14:45', subject: 'Mathematics', teacher: 'Mr Daniel Acevedo Moncada' }
+        { time: '13:10 - 14:00', subject: 'Mathematics', teacher: 'Daniela Mesa' },
+        { time: '14:00 - 14:45', subject: 'Lenguaje', teacher: 'Daniel Acevedo' }
       ]
     },
     {
       dayNum: 4,
       title: 'Día 4',
       hasEf: true,
-      efTime: '13:10 - 14:00',
+      efTime: '14:00 - 14:45',
       blocks: [
-        { time: '08:15 - 09:35', subject: 'Ciencias Sociales', teacher: 'Mr Daniel Acevedo Moncada' },
+        { time: '08:15 - 09:35', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo' },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
-        { time: '10:35 - 11:30', subject: 'Lenguaje', teacher: 'Mr Daniel Acevedo Moncada' },
-        { time: '11:30 - 12:25', subject: 'English', teacher: 'Mr Daniel Acevedo Moncada' },
+        { time: '10:35 - 11:30', subject: 'Lenguaje', teacher: 'Daniel Acevedo' },
+        { time: '11:30 - 12:25', subject: 'English', teacher: 'Laura Valencia' },
         { time: '12:25 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 14:00', subject: 'Educación Física 🔴', teacher: 'Hugo Hernández (SA1)', isEf: true },
-        { time: '14:00 - 14:45', subject: 'Lenguaje', teacher: 'Mr Daniel Acevedo Moncada' }
+        { time: '13:10 - 14:00', subject: 'Mathematics', teacher: 'Daniela Mesa' },
+        { time: '14:00 - 14:45', subject: 'Educación Física 🔴', teacher: 'Hugo Hernandez (SA1)', isEf: true }
       ]
     },
     {
@@ -846,12 +991,12 @@ export class ImportantNotesComponent {
       title: 'Día 5',
       hasEf: false,
       blocks: [
-        { time: '08:15 - 09:35', subject: 'Identidad San Miguel', teacher: 'Jira Giraldo' },
+        { time: '08:15 - 09:35', subject: 'Identidad San Miguel', teacher: 'Jara Gomez' },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
-        { time: '10:35 - 12:25', subject: 'Mathematics', teacher: 'Mr Daniel Acevedo Moncada' },
+        { time: '10:35 - 12:25', subject: 'Mathematics', teacher: 'Daniela Mesa' },
         { time: '12:25 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 14:00', subject: 'Música', teacher: 'Carlos Ramírez (Music Hall)' },
-        { time: '14:00 - 14:45', subject: 'Homeroom', teacher: 'Mr Daniel Acevedo Moncada / Ms Diana Milena Rojas' }
+        { time: '13:10 - 14:00', subject: 'Música', teacher: 'Carlos Ramirez (Music Hall)' },
+        { time: '14:00 - 14:45', subject: 'Homeroom', teacher: 'Daniela Mesa / Daniel Acevedo / Diana Milena Rojas / Valentina Salazar' }
       ]
     },
     {
@@ -859,18 +1004,26 @@ export class ImportantNotesComponent {
       title: 'Día 6',
       hasEf: false,
       blocks: [
-        { time: '08:15 - 09:35', subject: 'Science', teacher: 'Mr Daniel Acevedo Moncada' },
+        { time: '08:15 - 09:35', subject: 'Science', teacher: 'Daniela Mesa' },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
-        { time: '10:35 - 11:30', subject: 'Lenguaje', teacher: 'Mr Daniel Acevedo Moncada' },
-        { time: '11:30 - 12:25', subject: 'Ciencias Sociales', teacher: 'Mr Daniel Acevedo Moncada' },
+        { time: '10:35 - 11:30', subject: 'Lenguaje', teacher: 'Daniel Acevedo' },
+        { time: '11:30 - 12:25', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo' },
         { time: '12:25 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 14:45', subject: 'English+ / Reading', teacher: 'Mr Daniel Acevedo Moncada / Ms Diana Milena Rojas' }
+        { time: '13:10 - 14:45', subject: 'English+', teacher: 'Laura Valencia / Diana Milena Rojas' }
       ]
     }
   ];
 
+  selectScheduleDay(dayNum: number): void {
+    this.userSelectedDay.set(dayNum);
+  }
+
+  resetToToday(): void {
+    this.userSelectedDay.set(null);
+  }
+
   displayedScheduleDays(): ScheduleDay[] {
-    const selected = this.selectedScheduleDay();
+    const selected = this.effectiveSelectedDay();
     if (selected === 0) {
       return this.scheduleDays;
     }
