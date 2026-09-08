@@ -275,19 +275,24 @@ interface ScheduleDay {
       background: #ffffff;
     }
     .panel-header {
-      padding: 16px 20px !important;
+      padding: 14px 16px !important;
       background: #f8fafc;
       border-bottom: 1px solid #e2e8f0;
-      min-height: 56px !important;
+      height: auto !important;
+      min-height: 52px !important;
     }
     .panel-title {
-      font-size: 0.95rem !important;
+      font-size: 0.92rem !important;
       font-weight: 800 !important;
       color: #0f172a;
       display: flex !important;
       align-items: center !important;
       gap: 10px !important;
       margin: 0 !important;
+      height: auto !important;
+      line-height: 1.35 !important;
+      white-space: normal !important;
+      word-break: break-word !important;
       overflow: visible !important;
     }
     .header-icon {

@@ -80,6 +80,21 @@ body {
   padding: 0 16px 80px 16px;
 }
 
+/* Material Expansion Panel Header Auto Height Fix */
+.mat-expansion-panel-header, .mat-mdc-expansion-panel-header {
+  height: auto !important;
+  min-height: 48px !important;
+  padding: 12px 16px !important;
+}
+.mat-expansion-panel-header-title, .mat-mdc-expansion-panel-header-title {
+  height: auto !important;
+  align-items: center !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  line-height: 1.35 !important;
+  margin-right: 0 !important;
+}
+
 @media (max-width: 640px) {
   .container {
     padding: 0 12px 100px 12px;
