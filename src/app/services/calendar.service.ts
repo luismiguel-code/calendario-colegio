@@ -63,8 +63,12 @@ export class CalendarService {
     return this.activities().filter(a => a.grupoId.toLowerCase() === group.id.toLowerCase() && a.fecha === dateStr);
   });
 
+  private readonly CLOUD_API_URL = 'https://api.restful-api.dev/objects/ff808181a067127101a0818d71574b42';
+
   constructor() {
     this.loadFromStorage();
+    this.syncWithCloud();
+    this.initAutoSync();
   }
 
   setActiveGroup(groupId: string): void {
@@ -127,11 +131,13 @@ export class CalendarService {
     };
     this.activities.update(prev => [...prev, newActivity]);
     this.saveActivitiesToStorage();
+    this.pushToCloud();
   }
 
   deleteActivity(id: string): void {
     this.activities.update(prev => prev.filter(a => a.id !== id));
     this.saveActivitiesToStorage();
+    this.pushToCloud();
   }
 
   setUniformOverride(groupId: string, fecha: string, tipo: UniformType, motivo?: string): void {
@@ -140,11 +146,13 @@ export class CalendarService {
       return [...filtered, { grupoId: groupId.toLowerCase(), fecha, tipo, motivo }];
     });
     this.saveOverridesToStorage();
+    this.pushToCloud();
   }
 
   removeUniformOverride(groupId: string, fecha: string): void {
     this.uniformOverrides.update(prev => prev.filter(o => !(o.grupoId.toLowerCase() === groupId.toLowerCase() && o.fecha === fecha)));
     this.saveOverridesToStorage();
+    this.pushToCloud();
   }
 
   formatDateToString(d: Date): string {
@@ -152,6 +160,54 @@ export class CalendarService {
     const month = (d.getMonth() + 1).toString().padStart(2, '0');
     const day = d.getDate().toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private initAutoSync(): void {
+    if (typeof window !== 'undefined') {
+      // Sincronizar automáticamente cada 10 segundos
+      setInterval(() => this.syncWithCloud(), 10000);
+      // Sincronizar de inmediato cuando la pestaña vuelve a enfocarse
+      window.addEventListener('focus', () => this.syncWithCloud());
+    }
+  }
+
+  private async syncWithCloud(): Promise<void> {
+    try {
+      const res = await fetch(this.CLOUD_API_URL);
+      if (res.ok) {
+        const result = await res.json();
+        if (result && result.data) {
+          if (Array.isArray(result.data.activities)) {
+            this.activities.set(result.data.activities);
+            localStorage.setItem(this.STORAGE_KEY_ACTIVITIES, JSON.stringify(result.data.activities));
+          }
+          if (Array.isArray(result.data.overrides)) {
+            this.uniformOverrides.set(result.data.overrides);
+            localStorage.setItem(this.STORAGE_KEY_OVERRIDES, JSON.stringify(result.data.overrides));
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Sincronización en la nube no disponible temporalmente:', err);
+    }
+  }
+
+  private async pushToCloud(): Promise<void> {
+    try {
+      await fetch(this.CLOUD_API_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'calendario_1b_activities',
+          data: {
+            activities: this.activities(),
+            overrides: this.uniformOverrides()
+          }
+        })
+      });
+    } catch (err) {
+      console.warn('Error enviando datos a la nube:', err);
+    }
   }
 
   private loadFromStorage(): void {
