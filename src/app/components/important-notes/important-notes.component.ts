@@ -39,7 +39,7 @@ interface ScheduleDay {
           <mat-expansion-panel-header class="panel-header">
             <mat-panel-title class="panel-title">
               <mat-icon color="primary" class="header-icon">info</mat-icon>
-              <span>PUNTOS IMPORTANTES {{ isGroup1B() ? 'Y HORARIO DE CLASES' : '' }}</span>
+              <span class="panel-title-text">PUNTOS IMPORTANTES {{ isGroup1B() ? 'Y HORARIO' : '' }}</span>
             </mat-panel-title>
             <mat-panel-description class="panel-desc">
               <span class="click-hint">Click para desplegar información general {{ isGroup1B() ? 'y horario' : '' }}</span>
@@ -275,25 +275,29 @@ interface ScheduleDay {
       background: #ffffff;
     }
     .panel-header {
-      padding: 14px 16px !important;
+      padding: 0 16px !important;
       background: #f8fafc;
       border-bottom: 1px solid #e2e8f0;
-      height: auto !important;
-      min-height: 52px !important;
+      height: 48px !important;
+      min-height: 48px !important;
     }
     .panel-title {
-      font-size: 0.92rem !important;
+      font-size: 0.88rem !important;
       font-weight: 800 !important;
       color: #0f172a;
       display: flex !important;
       align-items: center !important;
-      gap: 10px !important;
+      gap: 8px !important;
       margin: 0 !important;
-      height: auto !important;
-      line-height: 1.35 !important;
-      white-space: normal !important;
-      word-break: break-word !important;
-      overflow: visible !important;
+      overflow: hidden !important;
+      white-space: nowrap !important;
+      min-width: 0 !important;
+    }
+    .panel-title-text {
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+      min-width: 0 !important;
     }
     .header-icon {
       color: #4f46e5;
@@ -703,10 +707,12 @@ interface ScheduleDay {
         display: none !important;
       }
       .panel-header {
-        padding: 12px 14px !important;
+        padding: 0 12px !important;
+        height: 44px !important;
+        min-height: 44px !important;
       }
       .panel-title {
-        font-size: 0.82rem !important;
+        font-size: 0.8rem !important;
         gap: 6px !important;
       }
       .header-icon {

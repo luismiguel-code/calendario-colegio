@@ -80,19 +80,20 @@ body {
   padding: 0 16px 80px 16px;
 }
 
-/* Material Expansion Panel Header Auto Height Fix */
+/* Material Expansion Panel Header Compact Ellipsis Fix */
 .mat-expansion-panel-header, .mat-mdc-expansion-panel-header {
-  height: auto !important;
+  height: 48px !important;
   min-height: 48px !important;
-  padding: 12px 16px !important;
+  padding: 0 16px !important;
 }
 .mat-expansion-panel-header-title, .mat-mdc-expansion-panel-header-title {
-  height: auto !important;
+  height: 100% !important;
   align-items: center !important;
-  white-space: normal !important;
-  word-break: break-word !important;
-  line-height: 1.35 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
   margin-right: 0 !important;
+  min-width: 0 !important;
 }
 
 @media (max-width: 640px) {
