@@ -199,17 +199,45 @@ import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
       margin: 4px 0;
     }
     @media (max-width: 600px) {
+      .navbar-container {
+        padding: 8px 12px;
+      }
+      .brand-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+      }
+      .brand-icon mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+      .brand-text h1 {
+        font-size: 0.98rem;
+      }
+      .brand-text .subtitle {
+        font-size: 0.68rem;
+      }
+      .group-btn {
+        height: 36px !important;
+        padding: 0 10px !important;
+        font-size: 0.78rem !important;
+      }
       .btn-text {
         display: none;
       }
       .add-btn {
-        min-width: 40px !important;
+        min-width: 36px !important;
         padding: 0 !important;
         border-radius: 50% !important;
-        width: 40px !important;
+        width: 36px !important;
+        height: 36px !important;
       }
       .add-btn mat-icon {
         margin: 0 !important;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
       }
     }
   `]

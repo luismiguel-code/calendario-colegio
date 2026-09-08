@@ -695,14 +695,69 @@ interface ScheduleDay {
 
     @media (max-width: 600px) {
       .click-hint {
-        display: none;
+        display: none !important;
+      }
+      .panel-header {
+        padding: 12px 14px !important;
+      }
+      .panel-title {
+        font-size: 0.82rem !important;
+        gap: 6px !important;
+      }
+      .header-icon {
+        font-size: 20px !important;
+        width: 20px !important;
+        height: 20px !important;
       }
       .notes-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
         gap: 12px;
+        padding: 14px 0 10px 0;
+      }
+      .teachers-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .teachers-team-card {
+        padding: 12px;
+      }
+      .day-buttons-bar {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .day-toggle-btn {
+        flex-shrink: 0;
+        height: 34px !important;
+        font-size: 0.74rem !important;
+        padding: 0 8px !important;
       }
       .days-schedule-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+      }
+      .day-schedule-card {
+        padding: 10px;
+      }
+      .day-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .block-row {
+        padding: 4px 6px;
+      }
+      .block-time {
+        min-width: 68px;
+        font-size: 0.68rem;
+      }
+      .block-subject {
+        font-size: 0.75rem;
+      }
+      .block-teacher {
+        font-size: 0.65rem;
+        line-height: 1.2;
       }
     }
   `]

@@ -512,23 +512,66 @@ interface MonthDayCell {
     }
 
     @media (max-width: 600px) {
+      .quick-dates-bar {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        padding-bottom: 6px;
+        margin-bottom: 12px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .quick-dates-bar button {
+        flex-shrink: 0;
+        height: 36px !important;
+        font-size: 0.78rem !important;
+        padding: 0 10px !important;
+      }
       .tab-content {
-        padding: 12px;
+        padding: 12px 8px;
+      }
+      .agenda-header h3 {
+        font-size: 0.98rem;
       }
       .activity-card {
-        padding: 12px;
-        gap: 12px;
+        padding: 10px 12px;
+        gap: 10px;
+        border-radius: 12px;
+      }
+      .category-icon-wrapper {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+      }
+      .category-icon-wrapper mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+      .activity-title {
+        font-size: 0.92rem;
+      }
+      .activity-desc {
+        font-size: 0.8rem;
       }
       .grid-cell {
-        padding: 4px;
+        padding: 4px 2px;
         border-radius: 8px;
+        min-height: 44px;
+        aspect-ratio: auto;
       }
       .cell-day-num {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
       }
       .cell-activity-count {
-        font-size: 0.55rem;
-        padding: 0 2px;
+        font-size: 0.52rem;
+        padding: 1px 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .legend-bar {
+        gap: 8px;
+        font-size: 0.72rem;
       }
     }
   `]
