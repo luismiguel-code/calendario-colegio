@@ -15,6 +15,7 @@ import { CalendarService } from '../../services/calendar.service';
 import { AuthService } from '../../services/auth.service';
 import { UniformBannerComponent } from '../uniform-banner/uniform-banner.component';
 import { ImportantNotesComponent } from '../important-notes/important-notes.component';
+import { MonthlyBirthdaysComponent } from '../monthly-birthdays/monthly-birthdays.component';
 import { AddActivityDialogComponent } from '../add-activity-dialog/add-activity-dialog.component';
 import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
 import { ActivityCategory } from '../../models/calendar.model';
@@ -27,6 +28,8 @@ interface MonthDayCell {
   isSelected: boolean;
   uniformTipo: string;
   activitiesCount: number;
+  hasBirthday?: boolean;
+  birthdayNames?: string;
 }
 
 @Component({
@@ -44,7 +47,8 @@ interface MonthDayCell {
     MatNativeDateModule,
     MatTooltipModule,
     UniformBannerComponent,
-    ImportantNotesComponent
+    ImportantNotesComponent,
+    MonthlyBirthdaysComponent
   ],
   template: `
     <div class="group-calendar-container animate-fade-in">
@@ -74,6 +78,9 @@ interface MonthDayCell {
 
       <!-- Panel Desplegable: Puntos Importantes a Tener en Cuenta -->
       <app-important-notes></app-important-notes>
+
+      <!-- Sección de Cumpleaños del Mes -->
+      <app-monthly-birthdays></app-monthly-birthdays>
 
       <!-- Main Tabs: Agenda Diaria / Calendario Mensual -->
       <mat-tab-group animationDuration="200ms" class="custom-tabs" (selectedIndexChange)="activeTabIndex.set($event)">
@@ -178,6 +185,7 @@ interface MonthDayCell {
               <span class="legend-item"><span class="dot dot-rojo"></span> Uniforme Rojo</span>
               <span class="legend-item"><span class="dot dot-especial"></span> Especial</span>
               <span class="legend-item"><span class="dot dot-libre"></span> Ropa Libre</span>
+              <span class="legend-item"><span class="bday-legend-icon">🎂</span> Cumpleaños</span>
             </div>
 
             <!-- Grid del Mes -->
@@ -196,9 +204,15 @@ interface MonthDayCell {
                   [class.other-month]="!cell.isCurrentMonth"
                   [class.is-today]="cell.isToday"
                   [class.is-selected]="cell.isSelected"
+                  [class.has-bday-cell]="cell.hasBirthday"
                   (click)="selectGridCell(cell)"
                 >
-                  <span class="cell-day-num">{{ cell.dayNumber }}</span>
+                  <div class="cell-top-bar">
+                    <span class="cell-day-num">{{ cell.dayNumber }}</span>
+                    @if (cell.isCurrentMonth && cell.hasBirthday) {
+                      <span class="cell-bday-chip" [matTooltip]="'🎂 Cumpleaños: ' + cell.birthdayNames">🎂</span>
+                    }
+                  </div>
 
                   @if (cell.isCurrentMonth) {
                     <div class="cell-uniform-indicator" [ngClass]="'dot-' + cell.uniformTipo" [matTooltip]="'Uniforme: ' + cell.uniformTipo"></div>
@@ -315,6 +329,7 @@ interface MonthDayCell {
     .cat-bg-materiales { background: #8b5cf6; }
     .cat-bg-evento { background: #ec4899; }
     .cat-bg-aviso { background: #f59e0b; }
+    .cat-bg-cumpleanos { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
 
     .card-body {
       flex: 1;
@@ -337,6 +352,8 @@ interface MonthDayCell {
     .cat-tag-materiales { background: #f3e8ff; color: #6b21a8; }
     .cat-tag-evento { background: #fce7f3; color: #9d174d; }
     .cat-tag-aviso { background: #fef3c7; color: #92400e; }
+    .cat-tag-cumpleanos { background: #fce7f3; color: #be185d; }
+    .category-border-cumpleanos { border-left: 4px solid #ec4899; }
 
     .destacado-badge {
       font-size: 0.72rem;
@@ -488,10 +505,29 @@ interface MonthDayCell {
       background: #eff6ff !important;
       box-shadow: inset 0 0 0 2px #3b82f6;
     }
+    .cell-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 2px;
+    }
     .cell-day-num {
       font-weight: 700;
       font-size: 0.85rem;
       color: #1e293b;
+    }
+    .cell-bday-chip {
+      font-size: 0.72rem;
+      line-height: 1;
+    }
+    .has-bday-cell {
+      background: #fdf2f8 !important;
+      border: 1px solid #fbcfe8 !important;
+    }
+    .bday-legend-icon {
+      font-size: 0.85rem;
+      margin-right: 2px;
     }
     .cell-uniform-indicator {
       width: 8px;
@@ -710,6 +746,7 @@ export class GroupCalendarComponent implements OnInit {
       case 'materiales': return 'palette';
       case 'evento': return 'celebration';
       case 'aviso': return 'campaign';
+      case 'cumpleanos': return 'cake';
       default: return 'event';
     }
   }
@@ -721,6 +758,7 @@ export class GroupCalendarComponent implements OnInit {
       case 'materiales': return 'Materiales';
       case 'evento': return 'Evento';
       case 'aviso': return 'Aviso';
+      case 'cumpleanos': return 'Cumpleaños 🎂';
       default: return 'Actividad';
     }
   }
@@ -766,6 +804,10 @@ export class GroupCalendarComponent implements OnInit {
       const uniformInfo = this.calendarService.getUniformForDate(groupId, dStr);
       const count = monthActivities.filter(a => a.fecha === dStr).length;
 
+      const bdays = groupId.toLowerCase() === '1b' ? this.calendarService.getBirthdaysForDate(month + 1, day) : [];
+      const hasBirthday = bdays.length > 0;
+      const birthdayNames = bdays.map(b => b.name).join(', ');
+
       cells.push({
         dateStr: dStr,
         dayNumber: day,
@@ -773,7 +815,9 @@ export class GroupCalendarComponent implements OnInit {
         isToday: dStr === todayStr,
         isSelected: dStr === selectedDate,
         uniformTipo: uniformInfo.tipo,
-        activitiesCount: count
+        activitiesCount: count,
+        hasBirthday,
+        birthdayNames
       });
     }
 

@@ -40,7 +40,7 @@ interface ScheduleDay {
           <mat-expansion-panel-header class="panel-header">
             <mat-panel-title class="panel-title">
               <mat-icon color="primary" class="header-icon">info</mat-icon>
-              <span class="panel-title-text">PUNTOS IMPORTANTES {{ isGroup1B() ? 'Y HORARIO' : '' }}</span>
+              <span class="panel-title-text"><strong class="title-primary">PUNTOS IMPORTANTES</strong><span class="title-secondary">{{ isGroup1B() ? ' Y HORARIO' : '' }}</span></span>
             </mat-panel-title>
             <mat-panel-description class="panel-desc">
               <span class="click-hint">Click para desplegar información general {{ isGroup1B() ? 'y horario' : '' }}</span>
@@ -341,16 +341,30 @@ interface ScheduleDay {
       color: #0f172a;
       display: flex !important;
       align-items: center !important;
-      gap: 8px !important;
+      gap: 6px !important;
       margin: 0 !important;
-      overflow: hidden !important;
       white-space: nowrap !important;
+      flex: 1 1 auto !important;
       min-width: 0 !important;
     }
     .panel-title-text {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap !important;
+      min-width: 0 !important;
+    }
+    .title-primary {
+      flex-shrink: 0 !important;
+      font-weight: 800 !important;
+      white-space: nowrap !important;
+    }
+    .title-secondary {
       overflow: hidden !important;
       text-overflow: ellipsis !important;
       white-space: nowrap !important;
+      color: #475569;
+      font-weight: 700 !important;
       min-width: 0 !important;
     }
     .header-icon {
@@ -368,6 +382,8 @@ interface ScheduleDay {
     .panel-desc {
       justify-content: flex-end;
       align-items: center;
+      flex: 0 0 auto !important;
+      margin-left: auto !important;
     }
     .click-hint {
       font-size: 0.78rem;

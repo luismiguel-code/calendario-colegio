@@ -1,6 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Activity, DayUniformOverride, GroupInfo, UniformType } from '../models/calendar.model';
 import { SAN_MIGUEL_CYCLES_1B } from '../data/school-cycles.data';
+import { BIRTHDAYS_1B, BirthdayInfo } from '../data/birthdays-1b.data';
 import { db } from '../config/firebase.config';
 import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
@@ -62,7 +63,31 @@ export class CalendarService {
   readonly activeGroupActivitiesForSelectedDate = computed(() => {
     const group = this.activeGroup();
     const dateStr = this.selectedDate();
-    return this.activities().filter(a => a.grupoId.toLowerCase() === group.id.toLowerCase() && a.fecha === dateStr);
+    const userActs = this.activities().filter(a => a.grupoId.toLowerCase() === group.id.toLowerCase() && a.fecha === dateStr);
+
+    if (group.id.toLowerCase() === '1b') {
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const month = parseInt(parts[1], 10);
+        const day = parseInt(parts[2], 10);
+        const bdays = this.getBirthdaysForDate(month, day);
+        
+        const bdayActivities: Activity[] = bdays.map(b => ({
+          id: `bday_${b.id}_${dateStr}`,
+          grupoId: '1b',
+          titulo: `🎂 ¡Cumpleaños de ${b.name}! 🎉`,
+          descripcion: b.role === 'teacher' ? '¡Hoy celebramos el cumpleaños de nuestro docente!' : '¡Hoy celebramos el cumpleaños de nuestro compañero de 1B!',
+          fecha: dateStr,
+          categoria: 'cumpleanos',
+          destacado: true,
+          creadoPor: 'Calendario Oficial 1B'
+        }));
+
+        return [...bdayActivities, ...userActs];
+      }
+    }
+
+    return userActs;
   });
 
   constructor() {
@@ -115,6 +140,14 @@ export class CalendarService {
     const defaultTipo = group.uniformeDefault[dayOfWeek as 1|2|3|4|5] || 'gris';
 
     return { tipo: defaultTipo, esOverride: false };
+  }
+
+  getBirthdaysForMonth(monthOneBased: number): BirthdayInfo[] {
+    return BIRTHDAYS_1B.filter(b => b.month === monthOneBased);
+  }
+
+  getBirthdaysForDate(monthOneBased: number, dayOfMonth: number): BirthdayInfo[] {
+    return BIRTHDAYS_1B.filter(b => b.month === monthOneBased && b.day === dayOfMonth);
   }
 
   getActivitiesForMonth(groupId: string, year: number, monthZeroBased: number): Activity[] {

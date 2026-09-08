@@ -1,6 +1,6 @@
 export type UniformType = 'gris' | 'rojo' | 'especial' | 'libre';
 
-export type ActivityCategory = 'tarea' | 'examen' | 'evento' | 'materiales' | 'aviso';
+export type ActivityCategory = 'tarea' | 'examen' | 'evento' | 'materiales' | 'aviso' | 'cumpleanos';
 
 export interface Activity {
   id: string;
