@@ -93,6 +93,7 @@ export class CalendarService {
   constructor() {
     this.loadFromStorage();
     this.initFirebaseRealtimeSync();
+    this.scheduleMidnightReload();
   }
 
   setActiveGroup(groupId: string): void {
@@ -272,6 +273,19 @@ export class CalendarService {
     } catch (err) {
       console.warn('Error inicializando Firebase Firestore:', err);
     }
+  }
+
+  private scheduleMidnightReload(): void {
+    if (typeof window === 'undefined') return;
+
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const timeUntilMidnight = tomorrow.getTime() - now.getTime();
+
+    // Reload the page exactly at midnight (plus 1 second for safety)
+    setTimeout(() => {
+      window.location.reload();
+    }, timeUntilMidnight + 1000);
   }
 
   private loadFromStorage(): void {
