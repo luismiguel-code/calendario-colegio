@@ -85,6 +85,13 @@ import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
                 <span>Cambio manual aplicado por Admin</span>
               </div>
             }
+
+            @if (calendarService.selectedDateUniform().esJuguetero) {
+              <div class="juguetero-pill">
+                <mat-icon>toys</mat-icon>
+                <span>¡Día Juguetero! (Pueden llevar juguete)</span>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -225,6 +232,26 @@ import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
       font-size: 14px;
       width: 14px;
       height: 14px;
+    }
+    .juguetero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #8b5cf6;
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      margin-top: 10px;
+      margin-right: 6px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .juguetero-pill mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
     .menu-header {
       padding: 8px 16px;

@@ -71,7 +71,7 @@ export class CalendarService {
         const month = parseInt(parts[1], 10);
         const day = parseInt(parts[2], 10);
         const bdays = this.getBirthdaysForDate(month, day);
-        
+
         const bdayActivities: Activity[] = bdays.map(b => ({
           id: `bday_${b.id}_${dateStr}`,
           grupoId: '1b',
@@ -105,11 +105,21 @@ export class CalendarService {
     this.selectedDate.set(dateStr);
   }
 
-  getUniformForDate(groupId: string, dateStr: string): { tipo: UniformType; esOverride: boolean; motivo?: string } {
+  getUniformForDate(groupId: string, dateStr: string): { tipo: UniformType; esOverride: boolean; motivo?: string; esJuguetero?: boolean } {
+    let esJuguetero = false;
+    
+    // Si es el Grupo 1B y es el "Día 5" del ciclo escolar
+    if (groupId.toLowerCase() === '1b') {
+      const cycleInfo = SAN_MIGUEL_CYCLES_1B[dateStr];
+      if (cycleInfo && cycleInfo.diaCiclo === 5) {
+        esJuguetero = true;
+      }
+    }
+
     // 1. Revisar si hay un override manual de los papás/maestros
     const override = this.uniformOverrides().find(o => o.grupoId.toLowerCase() === groupId.toLowerCase() && o.fecha === dateStr);
     if (override) {
-      return { tipo: override.tipo, esOverride: true, motivo: override.motivo };
+      return { tipo: override.tipo, esOverride: true, motivo: override.motivo, esJuguetero };
     }
 
     // 2. Si es el Grupo 1B, usar el Calendario Oficial por Ciclos de San Miguel
@@ -124,7 +134,7 @@ export class CalendarService {
         } else if (cycleInfo.diaCiclo > 0) {
           motivo = `Ciclo ${cycleInfo.ciclo} - Día ${cycleInfo.diaCiclo}: Clases Normales (Uniforme Gris)`;
         }
-        return { tipo: cycleInfo.uniforme, esOverride: false, motivo };
+        return { tipo: cycleInfo.uniforme, esOverride: false, motivo, esJuguetero };
       }
     }
 
@@ -133,13 +143,13 @@ export class CalendarService {
     const dayOfWeek = dateObj.getDay(); // 0 = Dom, 6 = Sáb
 
     if (dayOfWeek === 0 || dayOfWeek === 6) {
-      return { tipo: 'libre', esOverride: false, motivo: 'Fin de semana' };
+      return { tipo: 'libre', esOverride: false, motivo: 'Fin de semana', esJuguetero };
     }
 
     const group = this.groups().find(g => g.id.toLowerCase() === groupId.toLowerCase()) || this.groups()[0];
-    const defaultTipo = group.uniformeDefault[dayOfWeek as 1|2|3|4|5] || 'gris';
+    const defaultTipo = group.uniformeDefault[dayOfWeek as 1 | 2 | 3 | 4 | 5] || 'gris';
 
-    return { tipo: defaultTipo, esOverride: false };
+    return { tipo: defaultTipo, esOverride: false, esJuguetero };
   }
 
   getBirthdaysForMonth(monthOneBased: number): BirthdayInfo[] {
@@ -240,7 +250,7 @@ export class CalendarService {
         } else if (this.activities().length > 0) {
           // Si la base de datos está vacía en la nube, subir las actividades iniciales
           this.activities().forEach(act => {
-            setDoc(doc(db, 'activities', act.id), act).catch(() => {});
+            setDoc(doc(db, 'activities', act.id), act).catch(() => { });
           });
         }
       }, (err) => {
