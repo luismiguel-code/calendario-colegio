@@ -10,6 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CalendarService } from '../../services/calendar.service';
 import { AuthService } from '../../services/auth.service';
+import { AnalyticsService } from '../../services/analytics.service';
 import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
 
 @Component({
@@ -49,6 +50,23 @@ import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
             </button>
             <mat-menu #adminMenu="matMenu" xPosition="before">
               <div class="menu-header">Sesión de Administrador Activa</div>
+              <div class="stats-container">
+                <div class="stat-item">
+                  <mat-icon class="stat-icon">visibility</mat-icon>
+                  <div class="stat-text">
+                    <span class="stat-value">{{ analyticsService.totalVisits() }}</span>
+                    <span class="stat-label">Visitas Totales</span>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <mat-icon class="stat-icon pulse-icon">person</mat-icon>
+                  <div class="stat-text">
+                    <span class="stat-value">{{ analyticsService.activeUsers() }}</span>
+                    <span class="stat-label">Viendo Ahora</span>
+                  </div>
+                </div>
+              </div>
+              <hr class="menu-divider" />
               <button mat-menu-item (click)="authService.logout()">
                 <mat-icon color="warn">logout</mat-icon>
                 <span>Cerrar Sesión</span>
@@ -198,6 +216,51 @@ import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
       border-top: 1px solid #e2e8f0;
       margin: 4px 0;
     }
+    .stats-container {
+      padding: 8px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      border-bottom: 1px solid #e2e8f0;
+      margin: 4px 0;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .stat-icon {
+      color: #64748b;
+      width: 24px;
+      height: 24px;
+    }
+    .pulse-icon {
+      color: #10b981;
+      animation: pulse 2s infinite;
+    }
+    .stat-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.1;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
     @media (max-width: 600px) {
       .navbar-container {
         padding: 8px 12px;
@@ -245,6 +308,7 @@ import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
 export class NavbarComponent {
   calendarService = inject(CalendarService);
   authService = inject(AuthService);
+  analyticsService = inject(AnalyticsService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
 

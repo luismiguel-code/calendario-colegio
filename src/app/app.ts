@@ -4,6 +4,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { CalendarService } from './services/calendar.service';
+import { AnalyticsService } from './services/analytics.service';
 import { AddActivityDialogComponent } from './components/add-activity-dialog/add-activity-dialog.component';
 
 @Component({
@@ -19,7 +20,12 @@ import { AddActivityDialogComponent } from './components/add-activity-dialog/add
 })
 export class App {
   calendarService = inject(CalendarService);
+  analyticsService = inject(AnalyticsService);
   private dialog = inject(MatDialog);
+
+  constructor() {
+    this.analyticsService.init();
+  }
 
   openAddModal(): void {
     const group = this.calendarService.activeGroup();
