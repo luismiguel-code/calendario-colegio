@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Configuración de Notificaciones</h2>
+<mat-dialog-content>
+  <p>Elige a qué hora deseas recibir el recordatorio del calendario (uniforme, etc.) para el día siguiente.</p>
+
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label>Horario de Notificación</mat-label>
+    <mat-select [(value)]="selectedTime">
+      <mat-option value="06:00">06:00 AM (Mismo día)</mat-option>
+      <mat-option value="17:00">05:00 PM (Día anterior)</mat-option>
+      <mat-option value="18:00">06:00 PM (Día anterior)</mat-option>
+      <mat-option value="19:00">07:00 PM (Día anterior)</mat-option>
+      <mat-option value="20:00">08:00 PM (Día anterior)</mat-option>
+    </mat-select>
+  </mat-form-field>
+  
+  <p class="text-hint">Se te pedirá permiso en el navegador para enviarte la notificación.</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-raised-button color="primary" (click)="saveSettings()" [disabled]="isSaving">
+    {{ isSaving ? 'Guardando...' : 'Guardar y Suscribir' }}
+  </button>
+</mat-dialog-actions>

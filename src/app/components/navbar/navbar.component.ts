@@ -12,6 +12,7 @@ import { CalendarService } from '../../services/calendar.service';
 import { AuthService } from '../../services/auth.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
+import { SettingsDialog } from '../settings-dialog/settings-dialog';
 
 @Component({
   selector: 'app-navbar',
@@ -77,6 +78,10 @@ import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
               <mat-icon class="lock-icon">lock</mat-icon>
             </button>
           }
+
+          <button mat-icon-button class="notifications-btn" (click)="openSettingsModal()" matTooltip="Configurar Notificaciones">
+            <mat-icon color="primary">notifications_active</mat-icon>
+          </button>
 
           <div class="group-selector">
             <button mat-stroked-button [matMenuTriggerFor]="groupMenu" class="group-btn">
@@ -322,6 +327,13 @@ export class NavbarComponent {
     this.dialog.open(LoginDialogComponent, {
       width: '90%',
       maxWidth: '420px'
+    });
+  }
+
+  openSettingsModal(): void {
+    this.dialog.open(SettingsDialog, {
+      width: '90%',
+      maxWidth: '400px'
     });
   }
 
