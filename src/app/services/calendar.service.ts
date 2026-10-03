@@ -1,7 +1,8 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Activity, DayUniformOverride, GroupInfo, UniformType } from '../models/calendar.model';
-import { SAN_MIGUEL_CYCLES_1B } from '../data/school-cycles.data';
+import { SAN_MIGUEL_CYCLES_1B, SAN_MIGUEL_CYCLES_1A } from '../data/school-cycles.data';
 import { BIRTHDAYS_1B, BirthdayInfo } from '../data/birthdays-1b.data';
+import { BIRTHDAYS_1A } from '../data/birthdays-1a.data';
 import { db } from '../config/firebase.config';
 import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
@@ -31,7 +32,7 @@ export class CalendarService {
       id: '1a',
       nombre: 'Grupo 1A',
       grado: '1er Grado - Liceo Taller San Miguel',
-      maestra: 'Profra. Ana Gómez',
+      maestra: 'Ms. Daniela Mesa Pérez (Directora) / Ms. Valentina Salazar (Codirectora)',
       uniformeDefault: {
         1: 'rojo',
         2: 'gris',
@@ -65,22 +66,22 @@ export class CalendarService {
     const dateStr = this.selectedDate();
     const userActs = this.activities().filter(a => a.grupoId.toLowerCase() === group.id.toLowerCase() && a.fecha === dateStr);
 
-    if (group.id.toLowerCase() === '1b') {
+    if (group.id.toLowerCase() === '1b' || group.id.toLowerCase() === '1a') {
       const parts = dateStr.split('-');
       if (parts.length === 3) {
         const month = parseInt(parts[1], 10);
         const day = parseInt(parts[2], 10);
-        const bdays = this.getBirthdaysForDate(month, day);
+        const bdays = this.getBirthdaysForDate(group.id.toLowerCase(), month, day);
 
         const bdayActivities: Activity[] = bdays.map(b => ({
           id: `bday_${b.id}_${dateStr}`,
-          grupoId: '1b',
+          grupoId: group.id.toLowerCase(),
           titulo: `🎂 ¡Cumpleaños de ${b.name}! 🎉`,
-          descripcion: b.role === 'teacher' ? '¡Hoy celebramos el cumpleaños de nuestro docente!' : '¡Hoy celebramos el cumpleaños de nuestro compañero de 1B!',
+          descripcion: b.role === 'teacher' ? '¡Hoy celebramos el cumpleaños de nuestro docente!' : `¡Hoy celebramos el cumpleaños de nuestro compañero de ${group.id.toUpperCase()}!`,
           fecha: dateStr,
           categoria: 'cumpleanos',
           destacado: true,
-          creadoPor: 'Calendario Oficial 1B'
+          creadoPor: `Calendario Oficial ${group.id.toUpperCase()}`
         }));
 
         return [...bdayActivities, ...userActs];
@@ -109,9 +110,10 @@ export class CalendarService {
   getUniformForDate(groupId: string, dateStr: string): { tipo: UniformType; esOverride: boolean; motivo?: string; esJuguetero?: boolean } {
     let esJuguetero = false;
     
-    // Si es el Grupo 1B y es el "Día 5" del ciclo escolar
-    if (groupId.toLowerCase() === '1b') {
-      const cycleInfo = SAN_MIGUEL_CYCLES_1B[dateStr];
+    // Si es el Grupo 1B o 1A y es el "Día 5" del ciclo escolar
+    if (groupId.toLowerCase() === '1b' || groupId.toLowerCase() === '1a') {
+      const cyclesData = groupId.toLowerCase() === '1b' ? SAN_MIGUEL_CYCLES_1B : SAN_MIGUEL_CYCLES_1A;
+      const cycleInfo = cyclesData[dateStr];
       if (cycleInfo && cycleInfo.diaCiclo === 5) {
         esJuguetero = true;
       }
@@ -123,17 +125,19 @@ export class CalendarService {
       return { tipo: override.tipo, esOverride: true, motivo: override.motivo, esJuguetero };
     }
 
-    // 2. Si es el Grupo 1B, usar el Calendario Oficial por Ciclos de San Miguel
-    if (groupId.toLowerCase() === '1b') {
-      const cycleInfo = SAN_MIGUEL_CYCLES_1B[dateStr];
+    // 2. Si es el Grupo 1B o 1A, usar el Calendario Oficial por Ciclos de San Miguel
+    if (groupId.toLowerCase() === '1b' || groupId.toLowerCase() === '1a') {
+      const cyclesData = groupId.toLowerCase() === '1b' ? SAN_MIGUEL_CYCLES_1B : SAN_MIGUEL_CYCLES_1A;
+      const cycleInfo = cyclesData[dateStr];
       if (cycleInfo) {
         let motivo = '';
+        const cyclePrefix = cycleInfo.diaCiclo > 0 ? `Ciclo ${cycleInfo.ciclo} - Día ${cycleInfo.diaCiclo}: ` : '';
         if (cycleInfo.eventoEspecial) {
-          motivo = cycleInfo.eventoEspecial;
+          motivo = cyclePrefix + cycleInfo.eventoEspecial;
         } else if (cycleInfo.educacionFisica) {
-          motivo = `Ciclo ${cycleInfo.ciclo} - Día ${cycleInfo.diaCiclo}: Educación Física (Uniforme Rojo)`;
+          motivo = cyclePrefix + 'Educación Física (Uniforme Rojo)';
         } else if (cycleInfo.diaCiclo > 0) {
-          motivo = `Ciclo ${cycleInfo.ciclo} - Día ${cycleInfo.diaCiclo}: Clases Normales (Uniforme Gris)`;
+          motivo = cyclePrefix + 'Clases Normales (Uniforme Gris)';
         }
         return { tipo: cycleInfo.uniforme, esOverride: false, motivo, esJuguetero };
       }
@@ -153,12 +157,14 @@ export class CalendarService {
     return { tipo: defaultTipo, esOverride: false, esJuguetero };
   }
 
-  getBirthdaysForMonth(monthOneBased: number): BirthdayInfo[] {
-    return BIRTHDAYS_1B.filter(b => b.month === monthOneBased);
+  getBirthdaysForMonth(groupId: string, monthOneBased: number): BirthdayInfo[] {
+    const data = groupId.toLowerCase() === '1b' ? BIRTHDAYS_1B : (groupId.toLowerCase() === '1a' ? BIRTHDAYS_1A : []);
+    return data.filter(b => b.month === monthOneBased);
   }
 
-  getBirthdaysForDate(monthOneBased: number, dayOfMonth: number): BirthdayInfo[] {
-    return BIRTHDAYS_1B.filter(b => b.month === monthOneBased && b.day === dayOfMonth);
+  getBirthdaysForDate(groupId: string, monthOneBased: number, dayOfMonth: number): BirthdayInfo[] {
+    const data = groupId.toLowerCase() === '1b' ? BIRTHDAYS_1B : (groupId.toLowerCase() === '1a' ? BIRTHDAYS_1A : []);
+    return data.filter(b => b.month === monthOneBased && b.day === dayOfMonth);
   }
 
   getActivitiesForMonth(groupId: string, year: number, monthZeroBased: number): Activity[] {

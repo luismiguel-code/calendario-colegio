@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -71,6 +71,18 @@ interface MonthDayCell {
           </button>
           <mat-datepicker #picker></mat-datepicker>
         </div>
+
+        <!-- NEW: Bolitas 1A y 1B -->
+        @if (isBothMode()) {
+          <div class="quick-group-indicators">
+            <div class="group-ball" [ngClass]="getGroupBallClass('1a')" (click)="goToGroup('1a')" matTooltip="Uniforme 1A (Click para cambiar)">
+              1A
+            </div>
+            <div class="group-ball" [ngClass]="getGroupBallClass('1b')" (click)="goToGroup('1b')" matTooltip="Uniforme 1B (Click para cambiar)">
+              1B
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Hero Banner: Uniforme del Día (Gris vs Rojo) -->
@@ -254,6 +266,45 @@ interface MonthDayCell {
     }
     .date-picker-wrapper {
       position: relative;
+    }
+    .quick-group-indicators {
+      display: flex;
+      gap: 8px;
+      margin-left: auto; /* Push to the right */
+    }
+    .group-ball {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      border: 2px solid white;
+    }
+    .group-ball:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .group-ball.active-group {
+      border: 2px solid #222;
+    }
+    .ball-gris {
+      background: linear-gradient(135deg, #64748b 0%, #334155 100%);
+    }
+    .ball-rojo {
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    }
+    .ball-especial {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+    }
+    .ball-libre {
+      background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
     }
     .hidden-input {
       position: absolute;
@@ -616,11 +667,13 @@ export class GroupCalendarComponent implements OnInit {
   calendarService = inject(CalendarService);
   authService = inject(AuthService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private dialog = inject(MatDialog);
 
   activeTabIndex = signal<number>(0);
   currentViewYear = signal<number>(new Date().getFullYear());
   currentViewMonth = signal<number>(new Date().getMonth());
+  isBothMode = signal<boolean>(false);
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -628,6 +681,11 @@ export class GroupCalendarComponent implements OnInit {
       if (gId) {
         this.calendarService.setActiveGroup(gId);
       }
+    });
+
+    this.route.url.subscribe(url => {
+      const isBoth = url.length > 1 && url[1].path === 'both';
+      this.isBothMode.set(isBoth);
     });
   }
 
@@ -667,6 +725,20 @@ export class GroupCalendarComponent implements OnInit {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     this.calendarService.setSelectedDate(this.calendarService.formatDateToString(tomorrow));
+  }
+
+  getGroupBallClass(groupId: string): string {
+    const uniformInfo = this.calendarService.getUniformForDate(groupId, this.calendarService.selectedDate());
+    const isActive = this.calendarService.activeGroupId() === groupId;
+    return 'ball-' + uniformInfo.tipo + (isActive ? ' active-group' : '');
+  }
+
+  goToGroup(groupId: string): void {
+    if (this.isBothMode()) {
+      this.router.navigate(['/', groupId.toLowerCase(), 'both']);
+    } else {
+      this.router.navigate(['/', groupId.toLowerCase()]);
+    }
   }
 
   onDatePicked(val: Date | null): void {
@@ -804,7 +876,7 @@ export class GroupCalendarComponent implements OnInit {
       const uniformInfo = this.calendarService.getUniformForDate(groupId, dStr);
       const count = monthActivities.filter(a => a.fecha === dStr).length;
 
-      const bdays = groupId.toLowerCase() === '1b' ? this.calendarService.getBirthdaysForDate(month + 1, day) : [];
+      const bdays = (groupId.toLowerCase() === '1b' || groupId.toLowerCase() === '1a') ? this.calendarService.getBirthdaysForDate(groupId, month + 1, day) : [];
       const hasBirthday = bdays.length > 0;
       const birthdayNames = bdays.map(b => b.name).join(', ');
 

@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { CalendarService } from '../../services/calendar.service';
-import { BIRTHDAYS_1B, BirthdayInfo, MONTH_NAMES_ES } from '../../data/birthdays-1b.data';
+import { BirthdayInfo, MONTH_NAMES_ES } from '../../data/birthdays-1b.data';
 
 @Component({
   selector: 'app-monthly-birthdays',
@@ -18,7 +18,7 @@ import { BIRTHDAYS_1B, BirthdayInfo, MONTH_NAMES_ES } from '../../data/birthdays
     MatChipsModule
   ],
   template: `
-    @if (isGroup1B()) {
+    @if (showBirthdays()) {
       <div class="monthly-birthdays-wrapper">
         <mat-accordion class="custom-accordion">
           <mat-expansion-panel [expanded]="false" class="panel-card">
@@ -36,7 +36,7 @@ import { BIRTHDAYS_1B, BirthdayInfo, MONTH_NAMES_ES } from '../../data/birthdays
             <div class="birthdays-panel-body">
               <div class="birthdays-sub-header">
                 <div>
-                  <p class="subtitle">Celebraciones del salón 1B para este mes. Toca un cumpleaños para ir a ese día en la agenda.</p>
+                  <p class="subtitle">Celebraciones del salón {{ activeGroupId().toUpperCase() }} para este mes. Toca un cumpleaños para ir a ese día en la agenda.</p>
                 </div>
 
                 <button mat-stroked-button class="view-all-btn" (click)="showAllMonths.set(!showAllMonths())">
@@ -428,7 +428,8 @@ export class MonthlyBirthdaysComponent {
   showAllMonths = signal<boolean>(false);
   readonly MONTH_NAMES_ES = MONTH_NAMES_ES;
 
-  isGroup1B = computed(() => this.calendarService.activeGroupId().toLowerCase() === '1b');
+  activeGroupId = computed(() => this.calendarService.activeGroupId());
+  showBirthdays = computed(() => ['1b', '1a'].includes(this.activeGroupId().toLowerCase()));
 
   // Mes numérico (1..12) de la fecha seleccionada en el calendario
   currentMonthNum = computed(() => {
@@ -447,11 +448,11 @@ export class MonthlyBirthdaysComponent {
 
   monthBirthdays = computed(() => {
     const month = this.currentMonthNum();
-    return BIRTHDAYS_1B.filter(b => b.month === month);
+    return this.calendarService.getBirthdaysForMonth(this.activeGroupId(), month);
   });
 
   getBirthdaysForMonth(m: number): BirthdayInfo[] {
-    return BIRTHDAYS_1B.filter(b => b.month === m);
+    return this.calendarService.getBirthdaysForMonth(this.activeGroupId(), m);
   }
 
   isTodayBirthday(bday: BirthdayInfo): boolean {

@@ -51,11 +51,14 @@ import { GroupInfo } from '../../models/calendar.model';
               <div class="uniform-summary">
                 <div class="summary-title">Horario de Uniforme:</div>
                 <div class="uniform-days">
-                  <span class="day-chip chip-gris">Lun: Gris</span>
-                  <span class="day-chip chip-rojo">Mar: Rojo</span>
-                  <span class="day-chip chip-gris">Mié: Gris</span>
-                  <span class="day-chip chip-rojo">Jue: Rojo</span>
-                  <span class="day-chip chip-gris">Vie: Gris</span>
+                  @if (group.id === '1a') {
+                    <span class="day-chip chip-gris">Días 1, 3, 6: Gris</span>
+                    <span class="day-chip chip-rojo">Días 2, 4: Rojo (Deporte)</span>
+                    <span class="day-chip chip-rojo">Día 5: Rojo / Juguetero</span>
+                  } @else {
+                    <span class="day-chip chip-gris">Días 1, 3, 5: Gris</span>
+                    <span class="day-chip chip-rojo">Días 2, 4, 6: Rojo (Deporte)</span>
+                  }
                 </div>
               </div>
             </div>
@@ -68,6 +71,13 @@ import { GroupInfo } from '../../models/calendar.model';
             </div>
           </div>
         }
+      </div>
+
+      <div class="both-mode-container">
+        <button mat-stroked-button class="both-mode-btn" (click)="selectBothMode()">
+          <mat-icon>family_restroom</mat-icon>
+          Tengo hijos en 1A y 1B (Modo Multigrupo)
+        </button>
       </div>
 
       <div class="admin-note">
@@ -247,6 +257,23 @@ import { GroupInfo } from '../../models/calendar.model';
       width: 18px;
       height: 18px;
     }
+    
+    .both-mode-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .both-mode-btn {
+      border-radius: 20px !important;
+      padding: 0 24px !important;
+      height: 44px !important;
+      font-weight: 600 !important;
+      color: #4f46e5 !important;
+      border-color: #c7d2fe !important;
+    }
+    .both-mode-btn mat-icon {
+      margin-right: 8px;
+    }
   `]
 })
 export class HomeGroupsComponent {
@@ -260,5 +287,10 @@ export class HomeGroupsComponent {
 
   selectGroup(groupId: string): void {
     this.router.navigate(['/', groupId.toLowerCase()]);
+  }
+
+  selectBothMode(): void {
+    // Navigate to 1B by default in both mode
+    this.router.navigate(['/', '1b', 'both']);
   }
 }

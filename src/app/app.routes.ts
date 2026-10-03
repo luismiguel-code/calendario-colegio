@@ -13,6 +13,10 @@ export const routes: Routes = [
     component: GroupCalendarComponent
   },
   {
+    path: ':grupoId/both',
+    component: GroupCalendarComponent
+  },
+  {
     path: '**',
     redirectTo: ''
   }

@@ -1,0 +1,57 @@
+--- src/app/data/school-cycles.data.ts
++++ src/app/data/school-cycles.data.ts
+@@ -101,4 +101,5 @@
+   '2026-12-04': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Comité Académico - Sin Clases' },
+   '2026-12-08': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo / Holiday' },
++  '2026-12-25': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo / Navidad' },
+ 
+   // ENERO 2027
+@@ -106,4 +107,5 @@
++  '2027-01-01': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo / Año Nuevo' },
+   '2027-01-07': { ciclo: 2, diaCiclo: 3, educacionFisica: false, uniforme: 'gris', eventoEspecial: 'Regreso a Clases' },
+@@ -155,9 +157,9 @@
+   '2027-03-19': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Comité Académico - Sin Clases' },
+-  '2027-03-22': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Semana Santa' },
++  '2027-03-22': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo (San José) / Semana Santa' },
+   '2027-03-23': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Semana Santa' },
+   '2027-03-24': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Semana Santa' },
+-  '2027-03-25': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Semana Santa' },
+-  '2027-03-26': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Semana Santa' },
++  '2027-03-25': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo (Jueves Santo)' },
++  '2027-03-26': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo (Viernes Santo)' },
+ 
+@@ -239,4 +241,7 @@
+-  '2027-06-22': { ciclo: 10, diaCiclo: 4, educacionFisica: true, uniforme: 'rojo' }
++  '2027-06-22': { ciclo: 10, diaCiclo: 4, educacionFisica: true, uniforme: 'rojo' },
++  
++  '2027-07-05': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo (San Pedro y San Pablo)' },
++  '2027-07-20': { ciclo: 0, diaCiclo: 0, educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo (Día de la Independencia)' }
+ };
+ 
+@@ -331,4 +336,5 @@
+   '2026-12-04': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'gris', eventoEspecial: 'Comité Académico - Sin Clases' },
+   '2026-12-08': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'gris', eventoEspecial: 'Festivo / Holiday' },
++  '2026-12-25': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo / Navidad' },
+ 
+   // ENERO 2027
+@@ -336,4 +342,5 @@
++  '2027-01-01': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo / Año Nuevo' },
+   '2027-01-07': { ciclo: 2, diaCiclo: 3 , educacionFisica: false, uniforme: 'gris', eventoEspecial: 'Regreso a Clases' },
+@@ -385,9 +392,9 @@
+   '2027-03-19': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'gris', eventoEspecial: 'Comité Académico - Sin Clases' },
+-  '2027-03-22': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'gris', eventoEspecial: 'Semana Santa' },
++  '2027-03-22': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo (San José) / Semana Santa' },
+   '2027-03-23': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'gris', eventoEspecial: 'Semana Santa' },
+   '2027-03-24': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'gris', eventoEspecial: 'Semana Santa' },
+-  '2027-03-25': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'gris', eventoEspecial: 'Semana Santa' },
+-  '2027-03-26': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'gris', eventoEspecial: 'Semana Santa' },
++  '2027-03-25': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo (Jueves Santo)' },
++  '2027-03-26': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo (Viernes Santo)' },
+ 
+@@ -469,3 +476,6 @@
+-  '2027-06-22': { ciclo: 10, diaCiclo: 4 , educacionFisica: true, uniforme: 'rojo' }
++  '2027-06-22': { ciclo: 10, diaCiclo: 4 , educacionFisica: true, uniforme: 'rojo' },
++
++  '2027-07-05': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo (San Pedro y San Pablo)' },
++  '2027-07-20': { ciclo: 0, diaCiclo: 0 , educacionFisica: false, uniforme: 'libre', eventoEspecial: 'Festivo (Día de la Independencia)' }
+ };
