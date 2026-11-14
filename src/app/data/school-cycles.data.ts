@@ -9,7 +9,7 @@ export interface CycleDayInfo {
 }
 
 // Mapeo completo del Calendario por Ciclos 2026-2027 (Liceo Taller San Miguel - Grupo 1B)
-// Para 1B: Día 2, Día 4 y Día 6 tienen Educación Física (Hugo Hernández) -> Uniforme Rojo
+// Para 1B: Día 2, Día 4 y Día 6 -> Uniforme Rojo
 // Día 1, 3, 5 -> Uniforme Gris
 export const SAN_MIGUEL_CYCLES_1B: Record<string, CycleDayInfo> = {
   // AGOSTO 2026

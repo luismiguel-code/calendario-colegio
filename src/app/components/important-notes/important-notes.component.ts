@@ -173,7 +173,7 @@ interface ScheduleDay {
                 <div class="teacher-item">
                   <div class="teacher-role">Codirectora de grupo</div>
                   <div class="teacher-name">Ms Diana Milena Rojas</div>
-                  <div class="teacher-subjects">Reading Program, English+</div>
+                  <div class="teacher-subjects">Reading Institutional Program</div>
                 </div>
 
                 <div class="teacher-item">
@@ -185,7 +185,7 @@ interface ScheduleDay {
                 <div class="teacher-item">
                   <div class="teacher-role">Docente de Inglés</div>
                   <div class="teacher-name">Ms Laura Valencia</div>
-                  <div class="teacher-subjects">English, English+</div>
+                  <div class="teacher-subjects">English, Reading Institutional Program</div>
                 </div>
 
                 <div class="teacher-item">
@@ -242,7 +242,7 @@ interface ScheduleDay {
                     @if (currentCycleDayNum() === day.dayNum) {
                       <span class="hoy-chip">⭐ HOY</span>
                     } @else if (day.hasEf) {
-                      <span class="ef-badge">🔴 Ed. Física</span>
+                      <span class="ef-badge">🔴 Rojo</span>
                     }
                   </button>
                 }
@@ -285,7 +285,7 @@ interface ScheduleDay {
                       </span>
 
                       @if (day.hasEf) {
-                        <span class="ef-tag">🔴 UNIFORME ROJO (Ed. Física: {{ day.efTime }})</span>
+                        <span class="ef-tag">🔴 UNIFORME ROJO {{ day.efTime ? '(' + day.efTime + ')' : '' }}</span>
                       } @else {
                         <span class="gris-tag">🩶 UNIFORME GRIS (Clases Normales)</span>
                       }
@@ -1119,29 +1119,27 @@ export class ImportantNotesComponent {
       title: 'Día 1',
       hasEf: false,
       blocks: [
-        { time: '08:15 - 08:55', subject: 'English+', teacher: 'Laura Valencia / Diana Milena Rojas' },
-        { time: '08:55 - 09:35', subject: 'Lenguaje', teacher: 'Daniel Acevedo' },
+        { time: '08:15 - 09:35', subject: 'Progrentis Elementar', teacher: 'Daniel Acevedo (Primer B)' },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
-        { time: '10:35 - 11:20', subject: 'Ajedrez', teacher: 'Levy de la pava' },
-        { time: '11:20 - 12:00', subject: 'Mathematics', teacher: 'Daniela Mesa' },
+        { time: '10:35 - 11:20', subject: 'Mathematics', teacher: 'Daniela Mesa (Primero B)' },
+        { time: '11:20 - 12:00', subject: 'Ajedrez', teacher: 'Levy de la pava (Primero B)' },
         { time: '12:00 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 14:45', subject: 'Progrentis Elementar', teacher: 'Daniel Acevedo' }
+        { time: '13:10 - 13:50', subject: 'Science', teacher: 'Daniela Mesa (Primero B)' },
+        { time: '13:50 - 14:45', subject: 'Lenguaje', teacher: 'Daniel Acevedo (Primero B)' }
       ]
     },
     {
       dayNum: 2,
       title: 'Día 2',
       hasEf: true,
-      efTime: '13:50 - 14:45',
       blocks: [
-        { time: '08:15 - 08:55', subject: 'Danzas', teacher: 'Eliana García (Performing Arts)' },
-        { time: '08:55 - 09:35', subject: 'Teatro', teacher: 'Henry Rosas (Performing Arts)' },
+        { time: '08:15 - 08:55', subject: 'Mathematics', teacher: 'Daniela Mesa (Primero B)' },
+        { time: '08:55 - 09:35', subject: 'Lenguaje', teacher: 'Daniel Acevedo (Primero B)' },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
-        { time: '10:35 - 11:20', subject: 'Lenguaje', teacher: 'Daniel Acevedo' },
-        { time: '11:20 - 12:00', subject: 'English', teacher: 'Laura Valencia' },
+        { time: '10:35 - 11:20', subject: 'Música', teacher: 'Carlos Ramírez (Music Hall)' },
+        { time: '11:20 - 12:00', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo (Primero B)' },
         { time: '12:00 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 13:50', subject: 'Science', teacher: 'Daniela Mesa' },
-        { time: '13:50 - 14:45', subject: 'Educación Física 🔴', teacher: 'Hugo Hernandez (SA1)', isEf: true }
+        { time: '13:10 - 14:45', subject: 'Reading Institutional Program', teacher: 'Laura Valencia / Diana Milena Rojas (Literacy Room)' }
       ]
     },
     {
@@ -1149,28 +1147,29 @@ export class ImportantNotesComponent {
       title: 'Día 3',
       hasEf: false,
       blocks: [
-        { time: '08:15 - 08:55', subject: 'Science', teacher: 'Daniela Mesa' },
-        { time: '08:55 - 09:35', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo' },
+        { time: '08:15 - 08:55', subject: 'Lenguaje', teacher: 'Daniel Acevedo (Primero B)' },
+        { time: '08:55 - 09:35', subject: 'Teatro', teacher: 'Henry Rosas (Performing Arts)' },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
-        { time: '10:35 - 12:00', subject: 'Arts', teacher: 'Valentina Salazar (Art Studio)' },
+        { time: '10:35 - 11:20', subject: 'English', teacher: 'Laura Valencia (Primero B)' },
+        { time: '11:20 - 12:00', subject: 'Science', teacher: 'Daniela Mesa (Primero B)' },
         { time: '12:00 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 13:50', subject: 'Mathematics', teacher: 'Daniela Mesa' },
-        { time: '13:50 - 14:45', subject: 'Lenguaje', teacher: 'Daniel Acevedo' }
+        { time: '13:10 - 13:50', subject: 'Lenguaje', teacher: 'Daniel Acevedo (Primero B)' },
+        { time: '13:50 - 14:45', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo (Primero B)' }
       ]
     },
     {
       dayNum: 4,
       title: 'Día 4',
       hasEf: true,
-      efTime: '13:50 - 14:45',
+      efTime: 'Ed. Física: 13:10 - 13:50',
       blocks: [
-        { time: '08:15 - 09:35', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo' },
+        { time: '08:15 - 08:55', subject: 'English', teacher: 'Laura Valencia (Primero B)' },
+        { time: '08:55 - 09:35', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo (Primero B)' },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
-        { time: '10:35 - 11:20', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo' },
-        { time: '11:20 - 12:00', subject: 'English', teacher: 'Laura Valencia' },
+        { time: '10:35 - 12:00', subject: 'Mathematics', teacher: 'Daniela Mesa (Primero B)' },
         { time: '12:00 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 13:50', subject: 'Mathematics', teacher: 'Daniela Mesa' },
-        { time: '13:50 - 14:45', subject: 'Educación Física 🔴', teacher: 'Hugo Hernandez (SA1)', isEf: true }
+        { time: '13:10 - 13:50', subject: 'Educación Física 🔴', teacher: 'Hugo Hernandez (SA 1)', isEf: true },
+        { time: '13:50 - 14:45', subject: 'Science', teacher: 'Daniela Mesa (Primero B)' }
       ]
     },
     {
@@ -1178,25 +1177,28 @@ export class ImportantNotesComponent {
       title: 'Día 5',
       hasEf: false,
       blocks: [
-        { time: '08:15 - 09:35', subject: 'Identidad San Miguel', teacher: 'Jara Gomez' },
+        { time: '08:15 - 09:35', subject: 'Arts', teacher: 'Valentina Salazar (Art Studio)' },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
-        { time: '10:35 - 12:00', subject: 'Mathematics', teacher: 'Daniela Mesa' },
+        { time: '10:35 - 12:00', subject: 'Identidad San Miguel', teacher: 'Jana Gomez (Primer B)' },
         { time: '12:00 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 13:50', subject: 'Música', teacher: 'Carlos Ramirez (Music Hall)' },
-        { time: '13:50 - 14:45', subject: 'Homeroom', teacher: 'Daniela Mesa / Daniel Acevedo / Diana Milena Rojas / Valentina Salazar' }
+        { time: '13:10 - 13:50', subject: 'Reading Institutional Program', teacher: 'Laura Valencia / Diana Milena Rojas (Literacy Room)' },
+        { time: '13:50 - 14:45', subject: 'Homeroom', teacher: 'Daniela Mesa, Daniel Acevedo, Diana Milena Rojas, Valentina Salazar (Primero A)' }
       ]
     },
     {
       dayNum: 6,
       title: 'Día 6',
-      hasEf: false,
+      hasEf: true,
+      efTime: 'Danzas: 08:55 / Ed. Física: 13:10',
       blocks: [
-        { time: '08:15 - 09:35', subject: 'Science', teacher: 'Daniela Mesa' },
+        { time: '08:15 - 08:55', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo (Primero B)' },
+        { time: '08:55 - 09:35', subject: 'Danzas 🔴', teacher: 'Eliana García (Performing Arts)', isEf: true },
         { time: '09:35 - 10:35', subject: 'Desayuno / Receso 🍎', isBreak: true },
-        { time: '10:35 - 11:20', subject: 'Lenguaje', teacher: 'Daniel Acevedo' },
-        { time: '11:20 - 12:00', subject: 'Lenguaje', teacher: 'Daniel Acevedo' },
+        { time: '10:35 - 11:20', subject: 'Science', teacher: 'Daniela Mesa (Primero B)' },
+        { time: '11:20 - 12:00', subject: 'Lenguaje', teacher: 'Daniel Acevedo (Primero B)' },
         { time: '12:00 - 13:10', subject: 'Almuerzo 🍲', isBreak: true },
-        { time: '13:10 - 14:45', subject: 'English+', teacher: 'Laura Valencia / Diana Milena Rojas' }
+        { time: '13:10 - 13:50', subject: 'Educación Física 🔴', teacher: 'Hugo Hernandez (SA 1)', isEf: true },
+        { time: '13:50 - 14:45', subject: 'Mathematics', teacher: 'Daniela Mesa (Primero B)' }
       ]
     }
   ];
