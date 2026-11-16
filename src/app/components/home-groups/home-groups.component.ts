@@ -56,8 +56,9 @@ import { GroupInfo } from '../../models/calendar.model';
                     <span class="day-chip chip-rojo">Días 2, 4: Rojo (Deporte)</span>
                     <span class="day-chip chip-rojo">Día 5: Rojo / Juguetero</span>
                   } @else {
-                    <span class="day-chip chip-gris">Días 1, 3, 5: Gris</span>
-                    <span class="day-chip chip-rojo">Días 2, 4, 6: Rojo (Deporte)</span>
+                    <span class="day-chip chip-gris">Días 1, 2, 3: Gris</span>
+                    <span class="day-chip chip-rojo">Días 4, 6: Rojo (Deporte)</span>
+                    <span class="day-chip chip-gris">Día 5: Gris / Juguetero</span>
                   }
                 </div>
               </div>

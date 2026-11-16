@@ -242,7 +242,7 @@ interface ScheduleDay {
                     @if (currentCycleDayNum() === day.dayNum) {
                       <span class="hoy-chip">⭐ HOY</span>
                     } @else if (day.hasEf) {
-                      <span class="ef-badge">🔴 Rojo</span>
+                      <span class="ef-badge">🔴 Ed. Física</span>
                     }
                   </button>
                 }
@@ -285,7 +285,7 @@ interface ScheduleDay {
                       </span>
 
                       @if (day.hasEf) {
-                        <span class="ef-tag">🔴 UNIFORME ROJO {{ day.efTime ? '(' + day.efTime + ')' : '' }}</span>
+                        <span class="ef-tag">🔴 UNIFORME ROJO (Ed. Física: {{ day.efTime }})</span>
                       } @else {
                         <span class="gris-tag">🩶 UNIFORME GRIS (Clases Normales)</span>
                       }
@@ -1131,7 +1131,7 @@ export class ImportantNotesComponent {
     {
       dayNum: 2,
       title: 'Día 2',
-      hasEf: true,
+      hasEf: false,
       blocks: [
         { time: '08:15 - 08:55', subject: 'Mathematics', teacher: 'Daniela Mesa (Primero B)' },
         { time: '08:55 - 09:35', subject: 'Lenguaje', teacher: 'Daniel Acevedo (Primero B)' },
@@ -1161,7 +1161,7 @@ export class ImportantNotesComponent {
       dayNum: 4,
       title: 'Día 4',
       hasEf: true,
-      efTime: 'Ed. Física: 13:10 - 13:50',
+      efTime: '13:10 - 13:50',
       blocks: [
         { time: '08:15 - 08:55', subject: 'English', teacher: 'Laura Valencia (Primero B)' },
         { time: '08:55 - 09:35', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo (Primero B)' },
@@ -1189,7 +1189,7 @@ export class ImportantNotesComponent {
       dayNum: 6,
       title: 'Día 6',
       hasEf: true,
-      efTime: 'Danzas: 08:55 / Ed. Física: 13:10',
+      efTime: '08:55 y 13:10',
       blocks: [
         { time: '08:15 - 08:55', subject: 'Ciencias Sociales', teacher: 'Daniel Acevedo (Primero B)' },
         { time: '08:55 - 09:35', subject: 'Danzas 🔴', teacher: 'Eliana García (Performing Arts)', isEf: true },
